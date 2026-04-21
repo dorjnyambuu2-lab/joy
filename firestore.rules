@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Танилцуулгын профайл: унших нээлттэй, засахыг зөвхөн та (эсвэл Cloud Function)
+    match /site/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    // Холбоо барих мессеж: зөвхөн шинээр нэмэх (уншихыг хаасан)
+    match /messages/{messageId} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'message'])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.message is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.message.size() > 0;
+      allow update, delete: if false;
+    }
+  }
+}

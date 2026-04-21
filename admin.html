@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="mn" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Админ — Миний танилцуулга</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="admin-page">
+    <a class="skip" href="#main">Үндсэн агуулга руу очих</a>
+    <header>
+      <nav class="nav" aria-label="Админ цэс">
+        <a class="logo" href="index.html">← Нүүр</a>
+        <div class="nav-links">
+          <span class="admin-nav-title">Админ</span>
+        </div>
+        <button
+          class="theme-toggle"
+          id="theme-toggle"
+          type="button"
+          aria-label="Light mode руу шилжих"
+          aria-pressed="false"
+          title="Theme солих"
+        >
+          <span aria-hidden="true" id="theme-icon">🌙</span>
+        </button>
+      </nav>
+    </header>
+
+    <main id="main" class="admin-main">
+      <p class="admin-hint card" id="config-warning" hidden></p>
+      <p class="admin-hint card" id="local-dev-hint" hidden></p>
+
+      <section class="card admin-panel" id="login-section" aria-labelledby="login-title">
+        <h1 id="login-title">Нэвтрэх</h1>
+        <p class="admin-muted">Firebase Authentication дээр бүртгэсэн и-мэйл, нууц үг.</p>
+        <form class="contact-form admin-login-form" id="login-form" novalidate>
+          <label for="admin-email">И-мэйл</label>
+          <input id="admin-email" name="email" type="email" autocomplete="username" required />
+
+          <label for="admin-password">Нууц үг</label>
+          <input
+            id="admin-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+
+          <button class="btn" type="submit" id="login-btn">Нэвтрэх</button>
+          <p class="form-status" id="login-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="admin-dashboard" id="dashboard" hidden>
+        <div class="admin-toolbar card">
+          <p class="admin-user" id="admin-user-info"></p>
+          <div class="admin-toolbar-actions">
+            <button type="button" class="btn btn-ghost" id="tab-messages" aria-pressed="true">
+              Мессежүүд
+            </button>
+            <button type="button" class="btn btn-ghost" id="tab-profile" aria-pressed="false">
+              Профайл
+            </button>
+            <button type="button" class="btn btn-ghost" id="tab-menu" aria-pressed="false">
+              Ур чадвар
+            </button>
+            <button type="button" class="btn btn-ghost" id="tab-news" aria-pressed="false">
+              Төсөл
+            </button>
+            <button type="button" class="btn" id="logout-btn">Гарах</button>
+          </div>
+        </div>
+
+        <section class="card admin-tab" id="panel-messages" aria-labelledby="messages-heading">
+          <h2 id="messages-heading">Холбоо барих мессежүүд</h2>
+          <p class="admin-muted" id="messages-status"></p>
+          <div class="admin-message-list" id="messages-list"></div>
+        </section>
+
+        <section class="card admin-tab" id="panel-profile" hidden aria-labelledby="profile-heading">
+          <h2 id="profile-heading">Нүүр хуудасны профайл</h2>
+          <form class="contact-form" id="profile-form" novalidate>
+            <label for="pf-displayName">Нэр </label>
+            <input id="pf-displayName" name="displayName" type="text" />
+
+            <label for="pf-role">Гарчиг </label>
+            <input id="pf-role" name="role" type="text" />
+
+            <label for="pf-about">Тухай</label>
+            <textarea id="pf-about" name="about" rows="6"></textarea>
+
+            <button class="btn" type="submit" id="profile-save-btn">Хадгалах</button>
+            <p class="form-status" id="profile-status" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section class="card admin-tab" id="panel-menu" hidden aria-labelledby="menu-heading">
+          <h2 id="menu-heading">Ур чадвар</h2>
+          <form class="contact-form admin-inline-form" id="menu-form" novalidate>
+            <input id="menu-id" name="id" type="hidden" />
+            <input id="menu-icon-current" name="iconCurrent" type="hidden" />
+            <label for="menu-label">Ур чадварын нэр</label>
+            <input id="menu-label" name="label" type="text" required />
+            <label for="menu-link">Төрөл</label>
+            <input id="menu-link" name="link" type="text" required />
+            <label for="menu-icon">Зураг файл</label>
+            <input id="menu-icon" name="icon" type="file" accept="image/*" />
+            <button class="btn" type="submit" id="menu-save-btn">Хадгалах</button>
+            <button class="btn btn-ghost" type="button" id="menu-cancel-btn">Цэвэрлэх</button>
+            <p class="form-status" id="menu-status" role="status" aria-live="polite"></p>
+          </form>
+          <div class="admin-message-list" id="menu-list"></div>
+        </section>
+
+        <section class="card admin-tab" id="panel-news" hidden aria-labelledby="news-heading">
+          <h2 id="news-heading">Төсөл</h2>
+          <form class="contact-form admin-inline-form" id="news-form" novalidate>
+            <input id="news-id" name="id" type="hidden" />
+            <input id="news-image-current" name="imageCurrent" type="hidden" />
+            <label for="news-title">Гарчиг</label>
+            <input id="news-title" name="title" type="text" required />
+            <label for="news-type">Төрөл</label>
+            <select id="news-type" name="type">
+              <option value="project">Төсөл</option>
+              <option value="demo">Demo</option>
+            </select>
+            <label for="news-content">Агуулга</label>
+            <textarea id="news-content" name="content" rows="4" required></textarea>
+            <label for="news-image">Зураг файл</label>
+            <input id="news-image" name="image" type="file" accept="image/*" />
+            <label for="news-link">Link</label>
+            <input id="news-link" name="link" type="url" placeholder="https://..." />
+            <button class="btn" type="submit" id="news-save-btn">Хадгалах</button>
+            <button class="btn btn-ghost" type="button" id="news-cancel-btn">Цэвэрлэх</button>
+            <p class="form-status" id="news-status" role="status" aria-live="polite"></p>
+          </form>
+          <div class="admin-message-list" id="news-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+</html>
