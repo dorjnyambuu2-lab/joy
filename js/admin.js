@@ -30,16 +30,13 @@
   var messagesList = document.getElementById("messages-list");
   var messagesStatus = document.getElementById("messages-status");
   var tabMessages = document.getElementById("tab-messages");
-  var tabProfile = document.getElementById("tab-profile");
   var tabMenu = document.getElementById("tab-menu");
   var tabNews = document.getElementById("tab-news");
+  var tabAbout = document.getElementById("tab-about");
   var panelMessages = document.getElementById("panel-messages");
-  var panelProfile = document.getElementById("panel-profile");
   var panelMenu = document.getElementById("panel-menu");
   var panelNews = document.getElementById("panel-news");
-  var profileForm = document.getElementById("profile-form");
-  var profileStatus = document.getElementById("profile-status");
-  var profileSaveBtn = document.getElementById("profile-save-btn");
+  var panelAbout = document.getElementById("panel-about");
   var menuForm = document.getElementById("menu-form");
   var menuList = document.getElementById("menu-list");
   var menuStatus = document.getElementById("menu-status");
@@ -50,6 +47,10 @@
   var newsStatus = document.getElementById("news-status");
   var newsSaveBtn = document.getElementById("news-save-btn");
   var newsCancelBtn = document.getElementById("news-cancel-btn");
+  var aboutForm = document.getElementById("about-form");
+  var aboutStatus = document.getElementById("about-status");
+  var aboutSaveBtn = document.getElementById("about-save-btn");
+  var aboutReloadBtn = document.getElementById("about-reload-btn");
   var configWarning = document.getElementById("config-warning");
   var localDevHint = document.getElementById("local-dev-hint");
   var themeToggle = document.getElementById("theme-toggle");
@@ -207,10 +208,18 @@
     if (loginSection) loginSection.hidden = true;
     if (dashboard) dashboard.hidden = false;
     if (adminUserInfo) adminUserInfo.textContent = user && user.email ? user.email : "";
-    loadMessages();
-    loadProfileForm();
-    loadMenus();
-    loadNews();
+    setTab("messages");
+    try {
+      loadMessages();
+      loadMenus();
+      loadNews();
+      loadAbout();
+    } catch (e) {
+      if (messagesStatus) {
+        messagesStatus.textContent = "Админ хэсэг ачаалахад алдаа гарлаа. Хуудсыг дахин ачаална уу.";
+      }
+      console.error(e);
+    }
   }
 
   function tsToDate(ts) {
@@ -312,47 +321,26 @@
       });
   }
 
-  function loadProfileForm() {
-    db.collection("site")
-      .doc("profile")
-      .get()
-      .then(function (snap) {
-        var d = snap.exists ? snap.data() || {} : {};
-        var el;
-
-        el = document.getElementById("pf-displayName");
-        if (el) el.value = d.displayName || "";
-
-        el = document.getElementById("pf-role");
-        if (el) el.value = d.role || "";
-
-        el = document.getElementById("pf-about");
-        if (el) {
-          if (d.about) el.value = d.about;
-          else if (d.aboutHtml)
-            el.value = d.aboutHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-          else el.value = "";
-        }
-      })
-      .catch(function () {
-        /* ignore */
-      });
-  }
-
   function resetMenuForm() {
     if (!menuForm) return;
     menuForm.reset();
-    document.getElementById("menu-id").value = "";
-    document.getElementById("menu-icon-current").value = "";
+    var menuId = document.getElementById("menu-id");
+    var menuIconCurrent = document.getElementById("menu-icon-current");
+    if (menuId) menuId.value = "";
+    if (menuIconCurrent) menuIconCurrent.value = "";
   }
 
   function resetNewsForm() {
     if (!newsForm) return;
     newsForm.reset();
-    document.getElementById("news-id").value = "";
-    document.getElementById("news-image-current").value = "";
-    document.getElementById("news-type").value = "project";
-    document.getElementById("news-link").value = "";
+    var newsId = document.getElementById("news-id");
+    var newsImageCurrent = document.getElementById("news-image-current");
+    var newsType = document.getElementById("news-type");
+    var newsLink = document.getElementById("news-link");
+    if (newsId) newsId.value = "";
+    if (newsImageCurrent) newsImageCurrent.value = "";
+    if (newsType) newsType.value = "project";
+    if (newsLink) newsLink.value = "";
   }
 
   function readImageFileAsDataUrl(file) {
@@ -588,33 +576,66 @@
       });
   }
 
-  function setTab(which) {
-    var isMsg = which === "messages";
-    var isProfile = which === "profile";
-    var isMenu = which === "menu";
-    var isNews = which === "news";
-    if (panelMessages) panelMessages.hidden = !isMsg;
-    if (panelProfile) panelProfile.hidden = !isProfile;
-    if (panelMenu) panelMenu.hidden = !isMenu;
-    if (panelNews) panelNews.hidden = !isNews;
-    if (tabMessages) tabMessages.setAttribute("aria-pressed", String(isMsg));
-    if (tabProfile) tabProfile.setAttribute("aria-pressed", String(isProfile));
-    if (tabMenu) tabMenu.setAttribute("aria-pressed", String(isMenu));
-    if (tabNews) tabNews.setAttribute("aria-pressed", String(isNews));
+  function loadAbout() {
+    if (!aboutForm) return;
+    var aboutDisplayName = document.getElementById("about-display-name");
+    var aboutRole = document.getElementById("about-role");
+    var aboutText = document.getElementById("about-text");
+    db.collection("site")
+      .doc("profile")
+      .get()
+      .then(function (snap) {
+        var profile = snap.exists ? snap.data() || {} : {};
+        if (aboutDisplayName) aboutDisplayName.value = String(profile.displayName || "");
+        if (aboutRole) aboutRole.value = String(profile.role || "");
+        if (aboutText) aboutText.value = String(profile.about || "");
+        if (aboutStatus) {
+          aboutStatus.textContent = "";
+          aboutStatus.className = "form-status";
+        }
+      })
+      .catch(function (err) {
+        if (aboutStatus) {
+          aboutStatus.textContent = "Тухай мэдээлэл уншихад алдаа: " + (err.message || String(err));
+          aboutStatus.className = "form-status err";
+        }
+      });
   }
 
-  if (tabMessages && tabProfile && tabMenu && tabNews) {
+  function setTab(which) {
+    var isMsg = which === "messages";
+    var isMenu = which === "menu";
+    var isNews = which === "news";
+    var isAbout = which === "about";
+    if (panelMessages) panelMessages.hidden = !isMsg;
+    if (panelMenu) panelMenu.hidden = !isMenu;
+    if (panelNews) panelNews.hidden = !isNews;
+    if (panelAbout) panelAbout.hidden = !isAbout;
+    if (tabMessages) tabMessages.setAttribute("aria-pressed", String(isMsg));
+    if (tabMenu) tabMenu.setAttribute("aria-pressed", String(isMenu));
+    if (tabNews) tabNews.setAttribute("aria-pressed", String(isNews));
+    if (tabAbout) tabAbout.setAttribute("aria-pressed", String(isAbout));
+  }
+
+  if (tabMessages) {
     tabMessages.addEventListener("click", function () {
       setTab("messages");
     });
-    tabProfile.addEventListener("click", function () {
-      setTab("profile");
-    });
+  }
+  if (tabMenu) {
     tabMenu.addEventListener("click", function () {
       setTab("menu");
     });
+  }
+  if (tabNews) {
     tabNews.addEventListener("click", function () {
       setTab("news");
+    });
+  }
+  if (tabAbout) {
+    tabAbout.addEventListener("click", function () {
+      setTab("about");
+      loadAbout();
     });
   }
 
@@ -659,43 +680,14 @@
 
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function () {
-      auth.signOut();
-    });
-  }
-
-  if (profileForm) {
-    profileForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      if (profileStatus) {
-        profileStatus.textContent = "";
-        profileStatus.className = "form-status";
-      }
-
-      var payload = {
-        displayName: document.getElementById("pf-displayName").value.trim(),
-        role: document.getElementById("pf-role").value.trim(),
-        about: document.getElementById("pf-about").value.trim()
-      };
-
-      if (profileSaveBtn) profileSaveBtn.disabled = true;
-      db.collection("site")
-        .doc("profile")
-        .set(payload, { merge: true })
-        .then(function () {
-          if (profileStatus) {
-            profileStatus.textContent = "Хадгалагдлаа.";
-            profileStatus.className = "form-status ok";
-          }
-        })
+      logoutBtn.disabled = true;
+      auth
+        .signOut()
         .catch(function (err) {
-          if (profileStatus) {
-            profileStatus.textContent =
-              "Алдаа: " + (err.message || String(err));
-            profileStatus.className = "form-status err";
-          }
+          alert("Гарахад алдаа: " + (err.message || String(err)));
         })
         .finally(function () {
-          if (profileSaveBtn) profileSaveBtn.disabled = false;
+          logoutBtn.disabled = false;
         });
     });
   }
@@ -789,7 +781,7 @@
       var idxRaw = document.getElementById("news-id").value.trim();
       if (!title || !content) {
         if (newsStatus) {
-          newsStatus.textContent = "Гарчиг болон агуулгаа бөглөнө үү.";
+          newsStatus.textContent = "";
           newsStatus.className = "form-status err";
         }
         return;
@@ -842,6 +834,62 @@
         })
         .finally(function () {
           if (newsSaveBtn) newsSaveBtn.disabled = false;
+        });
+    });
+  }
+
+  if (aboutReloadBtn) {
+    aboutReloadBtn.addEventListener("click", function () {
+      loadAbout();
+    });
+  }
+
+  if (aboutForm) {
+    aboutForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (aboutStatus) {
+        aboutStatus.textContent = "";
+        aboutStatus.className = "form-status";
+      }
+
+      var displayName = document.getElementById("about-display-name").value.trim();
+      var role = document.getElementById("about-role").value.trim();
+      var about = document.getElementById("about-text").value.trim();
+
+      if (!about) {
+        if (aboutStatus) {
+          aboutStatus.textContent = "Тухай текстээ бөглөнө үү.";
+          aboutStatus.className = "form-status err";
+        }
+        return;
+      }
+
+      if (aboutSaveBtn) aboutSaveBtn.disabled = true;
+      db.collection("site")
+        .doc("profile")
+        .set(
+          {
+            displayName: displayName,
+            role: role,
+            about: about,
+            updatedAt: Date.now()
+          },
+          { merge: true }
+        )
+        .then(function () {
+          if (aboutStatus) {
+            aboutStatus.textContent = "Тухай мэдээлэл хадгалагдлаа.";
+            aboutStatus.className = "form-status ok";
+          }
+        })
+        .catch(function (err) {
+          if (aboutStatus) {
+            aboutStatus.textContent = "Алдаа: " + (err.message || String(err));
+            aboutStatus.className = "form-status err";
+          }
+        })
+        .finally(function () {
+          if (aboutSaveBtn) aboutSaveBtn.disabled = false;
         });
     });
   }

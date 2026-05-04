@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Миний танилцуулга</title>
     <link rel="stylesheet" href="css/style.css" />
+    <script
+      src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.10/dist/dotlottie-wc.js"
+      type="module"
+    ></script>
   </head>
   <body>
     <a class="skip" href="#main">Үндсэн агуулга руу очих</a>
     <header>
-      <nav class="nav" aria-label="Үндсэн цэс">
-        <a class="logo" href="#">Profile</a>
+      <nav class="nav nav-tech" aria-label="Үндсэн цэс">
+        <a class="logo nav-brand" href="#main">Joy</a>
         <div class="nav-links" id="main-nav-links">
+          <a href="#about">Тухай</a>
           <a href="#skills">Ур чадвар</a>
-          <a href="#contact">Холбоо</a>
           <a href="#projects">Төсөл</a>
+          <a href="#contact">Холбоо барих</a>
         </div>
         <button
           class="theme-toggle"
@@ -31,14 +36,23 @@
 
     <main id="main">
       <section class="hero" aria-labelledby="hero-title">
-        <img
-          class="profile-avatar"
-          src="assets/profile.png"
-          alt="Профайл зураг"
-          onerror="this.style.display='none';"
-        />
-        <span class="badge" id="hero-badge">Вэб хөгжүүлэгч</span>
-        <h1 id="hero-title">Сайн байна уу, намайг Joy гэдэг  <span id="hero-name"> </span></h1>
+        <div class="hero-content">
+          <h1 id="hero-title">Сайн байна уу, намайг Joy гэдэг <span id="hero-name"> </span></h1>
+          <p class="hero-tagline">
+            Орчин үеийн, хурдан бөгөөд хэрэглэгчдэд ээлтэй вэб шийдлүүд хөгжүүлдэг.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-cv" href="assets/cv.pdf" download="Joy-CV.pdf">CV татах</a>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <dotlottie-wc
+            src="https://lottie.host/2b7e0f47-54db-4267-8705-0c42e53895a2/FO3uoEGrMT.lottie"
+            style="width: 300px; height: 300px"
+            autoplay
+            loop
+          ></dotlottie-wc>
+        </div>
       </section>
 
       <section id="about" aria-labelledby="about-title">
@@ -47,6 +61,15 @@
           <p>
             Намайг Joy гэдэг, дижитал шийдэлд сонирхолтой, вэб болон аппликейшн хөгжүүлэлтээр дагнан ажиллахыг зорьдог оюутан хөгжүүлэгч. Орчин үеийн технологи ашиглан хурдтай, найдвартай, хэрэглэгчдэд ээлтэй бүтээгдэхүүн бүтээхийг эрхэмлэдэг.
           </p>
+          <figure class="about-art">
+            <img src="assets/about-neon.png" alt="Неон хэв маягийн програмчлалын зураг" />
+            <img
+              class="about-cat-layer"
+              src="assets/about-neon.png"
+              alt=""
+              aria-hidden="true"
+            />
+          </figure>
         </div>
       </section>
 
@@ -157,6 +180,6 @@
     <script src="js/firebase-config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=20260426-2"></script>
   </body>
 </html>

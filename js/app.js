@@ -287,6 +287,15 @@
       });
   }
 
+  function localizeContentType(type) {
+    var normalized = String(type || "")
+      .trim()
+      .toLowerCase();
+    if (normalized === "project") return "Төсөл";
+    if (normalized === "news") return "Мэдээ";
+    return type || "Төсөл";
+  }
+
   function renderContentItems(items) {
     if (!newsItems) return;
     var list = normalizeContentItems(items);
@@ -302,13 +311,16 @@
       article.className = "news-item";
       var badge = document.createElement("span");
       badge.className = "badge";
-      badge.textContent = item.type;
+      badge.textContent = localizeContentType(item.type);
       var title = document.createElement("h3");
       title.className = "news-item-title";
       title.textContent = item.title;
       var content = document.createElement("p");
       content.className = "news-item-content";
       content.textContent = item.content;
+      article.appendChild(badge);
+      article.appendChild(title);
+      article.appendChild(content);
       if (item.image) {
         var img = document.createElement("img");
         img.className = "news-item-image";
@@ -329,9 +341,6 @@
         link.textContent = "Төслийн холбоос";
         article.appendChild(link);
       }
-      article.appendChild(badge);
-      article.appendChild(title);
-      article.appendChild(content);
       newsItems.appendChild(article);
     });
   }
@@ -430,17 +439,9 @@
       /* ignore */
     });
 
-  db.collection("site")
-    .doc("navigation")
-    .get()
-    .then(function (snap) {
-      if (!snap.exists) return;
-      var d = snap.data() || {};
-      renderNav(d.items);
-    })
-    .catch(function () {
-      /* ignore */
-    });
+  // Navigation is managed directly in index.html.
+  // Keep Firestore fetch disabled so admin data does not override
+  // the static links: Тухай, Төсөл, Холбоо барих.
 
   db.collection("site")
     .doc("content")

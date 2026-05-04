@@ -59,14 +59,14 @@
             <button type="button" class="btn btn-ghost" id="tab-messages" aria-pressed="true">
               Мессежүүд
             </button>
-            <button type="button" class="btn btn-ghost" id="tab-profile" aria-pressed="false">
-              Профайл
-            </button>
             <button type="button" class="btn btn-ghost" id="tab-menu" aria-pressed="false">
               Ур чадвар
             </button>
             <button type="button" class="btn btn-ghost" id="tab-news" aria-pressed="false">
               Төсөл
+            </button>
+            <button type="button" class="btn btn-ghost" id="tab-about" aria-pressed="false">
+              Тухай
             </button>
             <button type="button" class="btn" id="logout-btn">Гарах</button>
           </div>
@@ -76,23 +76,6 @@
           <h2 id="messages-heading">Холбоо барих мессежүүд</h2>
           <p class="admin-muted" id="messages-status"></p>
           <div class="admin-message-list" id="messages-list"></div>
-        </section>
-
-        <section class="card admin-tab" id="panel-profile" hidden aria-labelledby="profile-heading">
-          <h2 id="profile-heading">Нүүр хуудасны профайл</h2>
-          <form class="contact-form" id="profile-form" novalidate>
-            <label for="pf-displayName">Нэр </label>
-            <input id="pf-displayName" name="displayName" type="text" />
-
-            <label for="pf-role">Гарчиг </label>
-            <input id="pf-role" name="role" type="text" />
-
-            <label for="pf-about">Тухай</label>
-            <textarea id="pf-about" name="about" rows="6"></textarea>
-
-            <button class="btn" type="submit" id="profile-save-btn">Хадгалах</button>
-            <p class="form-status" id="profile-status" role="status" aria-live="polite"></p>
-          </form>
         </section>
 
         <section class="card admin-tab" id="panel-menu" hidden aria-labelledby="menu-heading">
@@ -137,6 +120,24 @@
           </form>
           <div class="admin-message-list" id="news-list"></div>
         </section>
+
+        <section class="card admin-tab" id="panel-about" hidden aria-labelledby="about-heading">
+          <h2 id="about-heading">Тухай</h2>
+          <form class="contact-form admin-inline-form" id="about-form" novalidate>
+            <label for="about-display-name">Нэр</label>
+            <input id="about-display-name" name="displayName" type="text" />
+
+            <label for="about-role">Мэргэжил</label>
+            <input id="about-role" name="role" type="text" />
+
+            <label for="about-text">Тухай текст</label>
+            <textarea id="about-text" name="about" rows="5" required></textarea>
+
+            <button class="btn" type="submit" id="about-save-btn">Хадгалах</button>
+            <button class="btn btn-ghost" type="button" id="about-reload-btn">Дахин ачаалах</button>
+            <p class="form-status" id="about-status" role="status" aria-live="polite"></p>
+          </form>
+        </section>
       </section>
     </main>
 
@@ -144,6 +145,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="js/admin.js"></script>
+    <script src="js/admin.js?v=20260427-3"></script>
   </body>
 </html>
