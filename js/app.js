@@ -147,6 +147,43 @@
     });
   }
 
+  var navTech = document.querySelector(".nav-tech");
+  var navMenuToggle = document.getElementById("nav-menu-toggle");
+  if (navTech && navMenuToggle && mainNavLinks) {
+    function setMobileNavOpen(open) {
+      navTech.classList.toggle("is-drawer-open", open);
+      navMenuToggle.setAttribute("aria-expanded", String(open));
+      navMenuToggle.setAttribute("aria-label", open ? "Цэс хаах" : "Цэс нээх");
+      document.body.classList.toggle("nav-mobile-open", open);
+    }
+
+    navMenuToggle.addEventListener("click", function () {
+      setMobileNavOpen(!navTech.classList.contains("is-drawer-open"));
+    });
+
+    mainNavLinks.addEventListener("click", function (e) {
+      if (e.target === mainNavLinks) setMobileNavOpen(false);
+    });
+
+    mainNavLinks.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function () {
+        setMobileNavOpen(false);
+      });
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && navTech.classList.contains("is-drawer-open")) {
+        setMobileNavOpen(false);
+      }
+    });
+
+    if (window.matchMedia) {
+      window.matchMedia("(min-width: 761px)").addEventListener("change", function (m) {
+        if (m.matches) setMobileNavOpen(false);
+      });
+    }
+  }
+
   function isConfigPlaceholder() {
     if (!cfg || typeof cfg !== "object") return true;
     var v = JSON.stringify(cfg);
