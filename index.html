@@ -2,9 +2,12 @@
 <html lang="mn" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>Миний танилцуулга</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css?v=20260504-2" />
     <script
       src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.10/dist/dotlottie-wc.js"
       type="module"
@@ -15,32 +18,34 @@
     <header>
       <nav class="nav nav-tech" aria-label="Үндсэн цэс">
         <a class="logo nav-brand" href="#main">Joy</a>
-        <button
-          type="button"
-          class="nav-menu-toggle"
-          id="nav-menu-toggle"
-          aria-expanded="false"
-          aria-controls="main-nav-links"
-          aria-label="Цэс нээх"
-        >
-          <span class="nav-menu-bars" aria-hidden="true"></span>
-        </button>
         <div class="nav-links" id="main-nav-links">
           <a href="#about">Тухай</a>
           <a href="#skills">Ур чадвар</a>
           <a href="#projects">Төсөл</a>
           <a href="#contact">Холбоо барих</a>
         </div>
-        <button
-          class="theme-toggle"
-          id="theme-toggle"
-          type="button"
-          aria-label="Light mode руу шилжих"
-          aria-pressed="false"
-          title="Theme солих"
-        >
-          <span aria-hidden="true" id="theme-icon">🌙</span>
-        </button>
+        <div class="nav-trailing">
+          <button
+            type="button"
+            class="nav-menu-toggle"
+            id="nav-menu-toggle"
+            aria-expanded="false"
+            aria-controls="main-nav-links"
+            aria-label="Цэс нээх"
+          >
+            <span class="nav-menu-bars" aria-hidden="true"></span>
+          </button>
+          <button
+            class="theme-toggle"
+            id="theme-toggle"
+            type="button"
+            aria-label="Light mode руу шилжих"
+            aria-pressed="false"
+            title="Theme солих"
+          >
+            <span aria-hidden="true" id="theme-icon">🌙</span>
+          </button>
+        </div>
       </nav>
     </header>
 
@@ -190,6 +195,6 @@
     <script src="js/firebase-config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="js/app.js?v=20260504-1"></script>
+    <script src="js/app.js?v=20260504-2"></script>
   </body>
 </html>
