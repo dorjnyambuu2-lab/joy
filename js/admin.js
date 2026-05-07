@@ -268,32 +268,22 @@
   function startAnalyticsListeners() {
     stopAnalyticsListeners();
 
-    unsubscribeAdminLogins = db
-      .collection("site")
-      .doc("analytics")
-      .collection("visitors")
-      .onSnapshot(
-      function (snap) {
-        if (adminLoginCount) adminLoginCount.textContent = String(snap.size);
-      },
-      function () {
-        if (adminLoginCount) adminLoginCount.textContent = "Уншиж чадсангүй";
-      }
-    );
-
     var analyticsDoc = db.collection("site").doc("analytics");
     unsubscribeAnalyticsDoc = analyticsDoc.onSnapshot(
       function (snap) {
         var data = snap.exists ? snap.data() || {} : {};
         var total = Number(data.totalVisits || 0);
+        var uniqueVisitors = Number(data.uniqueVisitors || 0);
         var deviceCounts = data.deviceCounts || {};
         var desktop = Number(deviceCounts.desktop || 0);
         var mobile = Number(deviceCounts.mobile || 0);
+        if (adminLoginCount) adminLoginCount.textContent = String(uniqueVisitors);
         if (adminVisitTotal) adminVisitTotal.textContent = String(total);
         if (adminDeviceDesktop) adminDeviceDesktop.textContent = String(desktop);
         if (adminDeviceMobile) adminDeviceMobile.textContent = String(mobile);
       },
       function () {
+        if (adminLoginCount) adminLoginCount.textContent = "Уншиж чадсангүй";
         if (adminVisitTotal) adminVisitTotal.textContent = "Уншиж чадсангүй";
         if (adminDeviceDesktop) adminDeviceDesktop.textContent = "Уншиж чадсангүй";
         if (adminDeviceMobile) adminDeviceMobile.textContent = "Уншиж чадсангүй";

@@ -239,17 +239,11 @@
   }
 
   function trackVisit(dbRef) {
-    var visitSessionKey = "visit-tracked-session-v1";
-    try {
-      if (sessionStorage.getItem(visitSessionKey) === "1") return;
-    } catch (e) {
-      /* ignore storage errors */
-    }
-
     var deviceType = detectDeviceType();
     var dateKey = getLocalDateKey();
     var visitorId = getVisitorId();
     var rootRef = dbRef.collection("site").doc("analytics");
+    var visitorRef = rootRef.collection("visitors").doc(visitorId);
     var rootWrite = rootRef.set(
       {
         totalVisits: firebase.firestore.FieldValue.increment(1),
@@ -281,28 +275,42 @@
     var visitLogWrite = rootRef.collection("visits").add({
       visitedAt: Date.now(),
       deviceType: deviceType,
-      page: "Portfolio Home"
+      page: "Portfolio Home",
+      visitorId: visitorId
     });
-    var visitorWrite = rootRef
-      .collection("visitors")
-      .doc(visitorId)
-      .set(
-        {
-          visitorId: visitorId,
-          deviceType: deviceType,
-          lastSeenAt: Date.now()
-        },
-        { merge: true }
-      );
-
-    Promise.all([rootWrite, dailyWrite, visitLogWrite, visitorWrite])
-      .then(function () {
-        try {
-          sessionStorage.setItem(visitSessionKey, "1");
-        } catch (e) {
-          /* ignore storage errors */
+    var uniqueVisitorWrite = dbRef.runTransaction(function (tx) {
+      return tx.get(visitorRef).then(function (doc) {
+        if (!doc.exists) {
+          tx.set(
+            visitorRef,
+            {
+              visitorId: visitorId,
+              deviceType: deviceType,
+              firstSeenAt: Date.now(),
+              lastSeenAt: Date.now()
+            },
+            { merge: true }
+          );
+          tx.set(
+            rootRef,
+            { uniqueVisitors: firebase.firestore.FieldValue.increment(1) },
+            { merge: true }
+          );
+          return;
         }
-      })
+        tx.set(
+          visitorRef,
+          {
+            deviceType: deviceType,
+            lastSeenAt: Date.now()
+          },
+          { merge: true }
+        );
+      });
+    });
+
+    Promise.all([rootWrite, dailyWrite, visitLogWrite, uniqueVisitorWrite])
+      .then(function () {})
       .catch(function () {
         /* ignore analytics errors */
       });
