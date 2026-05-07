@@ -30,7 +30,8 @@
   var adminLoginCount = document.getElementById("admin-login-count");
   var adminVisitTotal = document.getElementById("admin-visit-total");
   var adminLastVisitDate = document.getElementById("admin-last-visit-date");
-  var adminLastVisitDevice = document.getElementById("admin-last-visit-device");
+  var adminDeviceDesktop = document.getElementById("admin-device-desktop");
+  var adminDeviceMobile = document.getElementById("admin-device-mobile");
   var messagesList = document.getElementById("messages-list");
   var messagesStatus = document.getElementById("messages-status");
   var tabMessages = document.getElementById("tab-messages");
@@ -264,7 +265,8 @@
   function loadVisitStats() {
     if (adminVisitTotal) adminVisitTotal.textContent = "Ачааллаж байна…";
     if (adminLastVisitDate) adminLastVisitDate.textContent = "Ачааллаж байна…";
-    if (adminLastVisitDevice) adminLastVisitDevice.textContent = "Ачааллаж байна…";
+    if (adminDeviceDesktop) adminDeviceDesktop.textContent = "Ачааллаж байна…";
+    if (adminDeviceMobile) adminDeviceMobile.textContent = "Ачааллаж байна…";
 
     var analyticsDoc = db.collection("site").doc("analytics");
     Promise.all([
@@ -276,29 +278,29 @@
         var visitsSnap = results[1];
         var data = snap.exists ? snap.data() || {} : {};
         var total = Number(data.totalVisits || 0);
+        var deviceCounts = data.deviceCounts || {};
+        var desktop = Number(deviceCounts.desktop || 0);
+        var mobile = Number(deviceCounts.mobile || 0);
         if (adminVisitTotal) adminVisitTotal.textContent = String(total);
+        if (adminDeviceDesktop) adminDeviceDesktop.textContent = String(desktop);
+        if (adminDeviceMobile) adminDeviceMobile.textContent = String(mobile);
         if (visitsSnap.empty) {
           if (adminLastVisitDate) adminLastVisitDate.textContent = "—";
-          if (adminLastVisitDevice) adminLastVisitDevice.textContent = "—";
           return;
         }
         var latest = visitsSnap.docs[0].data() || {};
         var visitedAt = Number(latest.visitedAt || 0);
-        var rowDevice = String(latest.deviceType || "unknown");
         if (adminLastVisitDate) {
           adminLastVisitDate.textContent = visitedAt
             ? new Date(visitedAt).toLocaleString("mn-MN")
             : "—";
         }
-        if (adminLastVisitDevice) {
-          adminLastVisitDevice.textContent =
-            rowDevice.charAt(0).toUpperCase() + rowDevice.slice(1);
-        }
       })
       .catch(function () {
         if (adminVisitTotal) adminVisitTotal.textContent = "Уншиж чадсангүй";
         if (adminLastVisitDate) adminLastVisitDate.textContent = "Уншиж чадсангүй";
-        if (adminLastVisitDevice) adminLastVisitDevice.textContent = "Уншиж чадсангүй";
+        if (adminDeviceDesktop) adminDeviceDesktop.textContent = "Уншиж чадсангүй";
+        if (adminDeviceMobile) adminDeviceMobile.textContent = "Уншиж чадсангүй";
       });
   }
 
