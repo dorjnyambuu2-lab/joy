@@ -1379,6 +1379,50 @@ html[data-theme="light"] .footer-action-btn:hover {
   background: rgba(255, 255, 255, 0.05);
 }
 
+.admin-analytics-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(11, 20, 37, 0.92) 0%, rgba(9, 16, 30, 0.96) 100%);
+}
+
+[data-theme="light"] .admin-analytics-table {
+  background: #ffffff;
+}
+
+.admin-analytics-table td {
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+}
+
+.admin-analytics-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-analytics-table tr:first-child td {
+  font-size: 0.82rem;
+  color: #6bc2ff;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.admin-analytics-table tr:last-child td {
+  font-size: 1.02rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .admin-analytics-table td {
+    padding: 0.75rem 0.65rem;
+    font-size: 0.86rem;
+  }
+}
+
 .news-item + .news-item {
   margin-top: 1rem;
   padding-top: 1rem;

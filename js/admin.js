@@ -250,14 +250,14 @@
 
   function loadAdminLoginCount() {
     if (!adminLoginCount) return;
-    adminLoginCount.textContent = "Нэвтэрсэн хүн: ачааллаж байна…";
+    adminLoginCount.textContent = "Ачааллаж байна…";
     db.collection("admin_logins")
       .get()
       .then(function (snap) {
-        adminLoginCount.textContent = "Нэвтэрсэн хүн: " + snap.size;
+        adminLoginCount.textContent = String(snap.size);
       })
       .catch(function () {
-        adminLoginCount.textContent = "Нэвтэрсэн хүн: тооцоолж чадсангүй";
+        adminLoginCount.textContent = "Уншиж чадсангүй";
       });
   }
 
