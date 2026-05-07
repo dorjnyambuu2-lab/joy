@@ -221,6 +221,23 @@
     return y + "-" + m + "-" + d;
   }
 
+  function getVisitorId() {
+    var key = "site-visitor-id-v1";
+    try {
+      var existing = localStorage.getItem(key);
+      if (existing) return existing;
+      var created =
+        "visitor_" +
+        Date.now().toString(36) +
+        "_" +
+        Math.random().toString(36).slice(2, 10);
+      localStorage.setItem(key, created);
+      return created;
+    } catch (e) {
+      return "visitor_fallback_" + Date.now().toString(36);
+    }
+  }
+
   function trackVisit(dbRef) {
     var visitSessionKey = "visit-tracked-session-v1";
     try {
@@ -231,6 +248,7 @@
 
     var deviceType = detectDeviceType();
     var dateKey = getLocalDateKey();
+    var visitorId = getVisitorId();
     var rootRef = dbRef.collection("site").doc("analytics");
     var rootWrite = rootRef.set(
       {
@@ -265,8 +283,19 @@
       deviceType: deviceType,
       page: "Portfolio Home"
     });
+    var visitorWrite = rootRef
+      .collection("visitors")
+      .doc(visitorId)
+      .set(
+        {
+          visitorId: visitorId,
+          deviceType: deviceType,
+          lastSeenAt: Date.now()
+        },
+        { merge: true }
+      );
 
-    Promise.all([rootWrite, dailyWrite, visitLogWrite])
+    Promise.all([rootWrite, dailyWrite, visitLogWrite, visitorWrite])
       .then(function () {
         try {
           sessionStorage.setItem(visitSessionKey, "1");

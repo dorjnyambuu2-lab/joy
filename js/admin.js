@@ -268,7 +268,11 @@
   function startAnalyticsListeners() {
     stopAnalyticsListeners();
 
-    unsubscribeAdminLogins = db.collection("admin_logins").onSnapshot(
+    unsubscribeAdminLogins = db
+      .collection("site")
+      .doc("analytics")
+      .collection("visitors")
+      .onSnapshot(
       function (snap) {
         if (adminLoginCount) adminLoginCount.textContent = String(snap.size);
       },
