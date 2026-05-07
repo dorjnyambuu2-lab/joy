@@ -62,6 +62,9 @@
   var localDevHint = document.getElementById("local-dev-hint");
   var themeToggle = document.getElementById("theme-toggle");
   var themeIcon = document.getElementById("theme-icon");
+  var unsubscribeAdminLogins = null;
+  var unsubscribeAnalyticsDoc = null;
+  var unsubscribeLatestVisit = null;
   var defaultSkillItems = [
     { label: "Visual Studio Code", link: "Code Editor", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" },
     { label: "React JS", link: "Framework", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
@@ -209,6 +212,7 @@
   function showLogin() {
     if (loginSection) loginSection.hidden = false;
     if (dashboard) dashboard.hidden = true;
+    stopAnalyticsListeners();
   }
 
   function showDashboard(user) {
@@ -252,14 +256,6 @@
   function loadAdminLoginCount() {
     if (!adminLoginCount) return;
     adminLoginCount.textContent = "Ачааллаж байна…";
-    db.collection("admin_logins")
-      .get()
-      .then(function (snap) {
-        adminLoginCount.textContent = String(snap.size);
-      })
-      .catch(function () {
-        adminLoginCount.textContent = "Уншиж чадсангүй";
-      });
   }
 
   function loadVisitStats() {
@@ -267,15 +263,23 @@
     if (adminLastVisitDate) adminLastVisitDate.textContent = "Ачааллаж байна…";
     if (adminDeviceDesktop) adminDeviceDesktop.textContent = "Ачааллаж байна…";
     if (adminDeviceMobile) adminDeviceMobile.textContent = "Ачааллаж байна…";
+  }
+
+  function startAnalyticsListeners() {
+    stopAnalyticsListeners();
+
+    unsubscribeAdminLogins = db.collection("admin_logins").onSnapshot(
+      function (snap) {
+        if (adminLoginCount) adminLoginCount.textContent = String(snap.size);
+      },
+      function () {
+        if (adminLoginCount) adminLoginCount.textContent = "Уншиж чадсангүй";
+      }
+    );
 
     var analyticsDoc = db.collection("site").doc("analytics");
-    Promise.all([
-      analyticsDoc.get(),
-      analyticsDoc.collection("visits").orderBy("visitedAt", "desc").limit(1).get()
-    ])
-      .then(function (results) {
-        var snap = results[0];
-        var visitsSnap = results[1];
+    unsubscribeAnalyticsDoc = analyticsDoc.onSnapshot(
+      function (snap) {
         var data = snap.exists ? snap.data() || {} : {};
         var total = Number(data.totalVisits || 0);
         var deviceCounts = data.deviceCounts || {};
@@ -284,24 +288,51 @@
         if (adminVisitTotal) adminVisitTotal.textContent = String(total);
         if (adminDeviceDesktop) adminDeviceDesktop.textContent = String(desktop);
         if (adminDeviceMobile) adminDeviceMobile.textContent = String(mobile);
-        if (visitsSnap.empty) {
-          if (adminLastVisitDate) adminLastVisitDate.textContent = "—";
-          return;
-        }
-        var latest = visitsSnap.docs[0].data() || {};
-        var visitedAt = Number(latest.visitedAt || 0);
-        if (adminLastVisitDate) {
-          adminLastVisitDate.textContent = visitedAt
-            ? new Date(visitedAt).toLocaleString("mn-MN")
-            : "—";
-        }
-      })
-      .catch(function () {
+      },
+      function () {
         if (adminVisitTotal) adminVisitTotal.textContent = "Уншиж чадсангүй";
-        if (adminLastVisitDate) adminLastVisitDate.textContent = "Уншиж чадсангүй";
         if (adminDeviceDesktop) adminDeviceDesktop.textContent = "Уншиж чадсангүй";
         if (adminDeviceMobile) adminDeviceMobile.textContent = "Уншиж чадсангүй";
-      });
+      }
+    );
+
+    unsubscribeLatestVisit = analyticsDoc
+      .collection("visits")
+      .orderBy("visitedAt", "desc")
+      .limit(1)
+      .onSnapshot(
+        function (snap) {
+          if (snap.empty) {
+            if (adminLastVisitDate) adminLastVisitDate.textContent = "—";
+            return;
+          }
+          var latest = snap.docs[0].data() || {};
+          var visitedAt = Number(latest.visitedAt || 0);
+          if (adminLastVisitDate) {
+            adminLastVisitDate.textContent = visitedAt
+              ? new Date(visitedAt).toLocaleString("mn-MN")
+              : "—";
+          }
+        },
+        function () {
+          if (adminLastVisitDate) adminLastVisitDate.textContent = "Уншиж чадсангүй";
+        }
+      );
+  }
+
+  function stopAnalyticsListeners() {
+    if (typeof unsubscribeAdminLogins === "function") {
+      unsubscribeAdminLogins();
+      unsubscribeAdminLogins = null;
+    }
+    if (typeof unsubscribeAnalyticsDoc === "function") {
+      unsubscribeAnalyticsDoc();
+      unsubscribeAnalyticsDoc = null;
+    }
+    if (typeof unsubscribeLatestVisit === "function") {
+      unsubscribeLatestVisit();
+      unsubscribeLatestVisit = null;
+    }
   }
 
   function tsToDate(ts) {
@@ -728,6 +759,7 @@
       setTab("analytics");
       loadAdminLoginCount();
       loadVisitStats();
+      startAnalyticsListeners();
     });
   }
 
