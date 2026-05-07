@@ -68,6 +68,9 @@
             <button type="button" class="btn btn-ghost" id="tab-about" aria-pressed="false">
               Тухай
             </button>
+            <button type="button" class="btn btn-ghost" id="tab-analytics" aria-pressed="false">
+              Нийт хандалт
+            </button>
             <button type="button" class="btn" id="logout-btn">Гарах</button>
           </div>
         </div>
@@ -90,7 +93,7 @@
             <label for="menu-icon">Зураг файл</label>
             <input id="menu-icon" name="icon" type="file" accept="image/*" />
             <button class="btn" type="submit" id="menu-save-btn">Хадгалах</button>
-            <button class="btn btn-ghost" type="button" id="menu-cancel-btn">Цэвэрлэх</button>
+            <button class="btn btn-ghost" type="button" id="menu-cancel-btn">Устгах</button>
             <p class="form-status" id="menu-status" role="status" aria-live="polite"></p>
           </form>
           <div class="admin-message-list" id="menu-list"></div>
@@ -115,7 +118,7 @@
             <label for="news-link">Link</label>
             <input id="news-link" name="link" type="url" placeholder="https://..." />
             <button class="btn" type="submit" id="news-save-btn">Хадгалах</button>
-            <button class="btn btn-ghost" type="button" id="news-cancel-btn">Цэвэрлэх</button>
+            <button class="btn btn-ghost" type="button" id="news-cancel-btn">Устгах</button>
             <p class="form-status" id="news-status" role="status" aria-live="polite"></p>
           </form>
           <div class="admin-message-list" id="news-list"></div>
@@ -134,9 +137,31 @@
             <textarea id="about-text" name="about" rows="5" required></textarea>
 
             <button class="btn" type="submit" id="about-save-btn">Хадгалах</button>
-            <button class="btn btn-ghost" type="button" id="about-reload-btn">Дахин ачаалах</button>
+            <button class="btn btn-ghost" type="button" id="about-reload-btn">Устгах</button>
             <p class="form-status" id="about-status" role="status" aria-live="polite"></p>
           </form>
+        </section>
+
+        <section class="card admin-tab" id="panel-analytics" hidden aria-labelledby="analytics-heading">
+          <h2 id="analytics-heading">Нийт хандалт</h2>
+          <div class="admin-message-list">
+            <table class="admin-analytics-table" aria-label="Хандалтын dashboard">
+              <tbody id="analytics-summary-body">
+                <tr>
+                  <td>Нэвтэрсэн хүн</td>
+                  <td>Нийт хандалт</td>
+                  <td>Огноо</td>
+                  <td>Төхөөрөмж</td>
+                </tr>
+                <tr>
+                  <td id="admin-login-count">—</td>
+                  <td id="admin-visit-total">—</td>
+                  <td id="admin-last-visit-date">—</td>
+                  <td id="admin-last-visit-device">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
       </section>
     </main>
@@ -145,6 +170,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="js/admin.js?v=20260427-3"></script>
+    <script src="js/admin.js?v=20260507-2"></script>
   </body>
 </html>

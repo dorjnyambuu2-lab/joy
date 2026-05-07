@@ -202,6 +202,83 @@
     dbStatus.textContent = text;
   }
 
+  function detectDeviceType() {
+    var ua = (navigator.userAgent || "").toLowerCase();
+    var isTablet =
+      /ipad|tablet/.test(ua) ||
+      (/android/.test(ua) && !/mobile/.test(ua)) ||
+      (window.innerWidth >= 768 && window.innerWidth <= 1024);
+    if (isTablet) return "tablet";
+    if (/mobi|iphone|ipod|android/.test(ua) || window.innerWidth < 768) return "mobile";
+    return "desktop";
+  }
+
+  function getLocalDateKey() {
+    var now = new Date();
+    var y = now.getFullYear();
+    var m = String(now.getMonth() + 1).padStart(2, "0");
+    var d = String(now.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + d;
+  }
+
+  function trackVisit(dbRef) {
+    var visitSessionKey = "visit-tracked-session-v1";
+    try {
+      if (sessionStorage.getItem(visitSessionKey) === "1") return;
+    } catch (e) {
+      /* ignore storage errors */
+    }
+
+    var deviceType = detectDeviceType();
+    var dateKey = getLocalDateKey();
+    var rootRef = dbRef.collection("site").doc("analytics");
+    var rootWrite = rootRef.set(
+      {
+        totalVisits: firebase.firestore.FieldValue.increment(1),
+        deviceCounts: {
+          mobile: firebase.firestore.FieldValue.increment(deviceType === "mobile" ? 1 : 0),
+          tablet: firebase.firestore.FieldValue.increment(deviceType === "tablet" ? 1 : 0),
+          desktop: firebase.firestore.FieldValue.increment(deviceType === "desktop" ? 1 : 0)
+        },
+        updatedAt: Date.now()
+      },
+      { merge: true }
+    );
+    var dailyWrite = rootRef
+      .collection("daily")
+      .doc(dateKey)
+      .set(
+        {
+          dateKey: dateKey,
+          visits: firebase.firestore.FieldValue.increment(1),
+          deviceCounts: {
+            mobile: firebase.firestore.FieldValue.increment(deviceType === "mobile" ? 1 : 0),
+            tablet: firebase.firestore.FieldValue.increment(deviceType === "tablet" ? 1 : 0),
+            desktop: firebase.firestore.FieldValue.increment(deviceType === "desktop" ? 1 : 0)
+          },
+          updatedAt: Date.now()
+        },
+        { merge: true }
+      );
+    var visitLogWrite = rootRef.collection("visits").add({
+      visitedAt: Date.now(),
+      deviceType: deviceType,
+      page: "Portfolio Home"
+    });
+
+    Promise.all([rootWrite, dailyWrite, visitLogWrite])
+      .then(function () {
+        try {
+          sessionStorage.setItem(visitSessionKey, "1");
+        } catch (e) {
+          /* ignore storage errors */
+        }
+      })
+      .catch(function () {
+        /* ignore analytics errors */
+      });
+  }
+
   function normalizeSkills(skills) {
     if (!Array.isArray(skills)) return [];
     return skills
@@ -409,6 +486,7 @@
   }
 
   var db = firebase.firestore(app);
+  trackVisit(db);
 
   db.collection("site")
     .doc("profile")

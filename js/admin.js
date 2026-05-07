@@ -27,16 +27,22 @@
   var dashboard = document.getElementById("dashboard");
   var logoutBtn = document.getElementById("logout-btn");
   var adminUserInfo = document.getElementById("admin-user-info");
+  var adminLoginCount = document.getElementById("admin-login-count");
+  var adminVisitTotal = document.getElementById("admin-visit-total");
+  var adminLastVisitDate = document.getElementById("admin-last-visit-date");
+  var adminLastVisitDevice = document.getElementById("admin-last-visit-device");
   var messagesList = document.getElementById("messages-list");
   var messagesStatus = document.getElementById("messages-status");
   var tabMessages = document.getElementById("tab-messages");
   var tabMenu = document.getElementById("tab-menu");
   var tabNews = document.getElementById("tab-news");
   var tabAbout = document.getElementById("tab-about");
+  var tabAnalytics = document.getElementById("tab-analytics");
   var panelMessages = document.getElementById("panel-messages");
   var panelMenu = document.getElementById("panel-menu");
   var panelNews = document.getElementById("panel-news");
   var panelAbout = document.getElementById("panel-about");
+  var panelAnalytics = document.getElementById("panel-analytics");
   var menuForm = document.getElementById("menu-form");
   var menuList = document.getElementById("menu-list");
   var menuStatus = document.getElementById("menu-status");
@@ -208,6 +214,9 @@
     if (loginSection) loginSection.hidden = true;
     if (dashboard) dashboard.hidden = false;
     if (adminUserInfo) adminUserInfo.textContent = user && user.email ? user.email : "";
+    trackAdminLogin(user);
+    loadAdminLoginCount();
+    loadVisitStats();
     setTab("messages");
     try {
       loadMessages();
@@ -220,6 +229,77 @@
       }
       console.error(e);
     }
+  }
+
+  function trackAdminLogin(user) {
+    if (!user || !user.uid) return;
+    db.collection("admin_logins")
+      .doc(user.uid)
+      .set(
+        {
+          uid: user.uid,
+          email: user.email || "",
+          lastLoginAt: Date.now()
+        },
+        { merge: true }
+      )
+      .catch(function (err) {
+        console.error("Админ нэвтрэлтийн лог хадгалахад алдаа:", err);
+      });
+  }
+
+  function loadAdminLoginCount() {
+    if (!adminLoginCount) return;
+    adminLoginCount.textContent = "Нэвтэрсэн хүн: ачааллаж байна…";
+    db.collection("admin_logins")
+      .get()
+      .then(function (snap) {
+        adminLoginCount.textContent = "Нэвтэрсэн хүн: " + snap.size;
+      })
+      .catch(function () {
+        adminLoginCount.textContent = "Нэвтэрсэн хүн: тооцоолж чадсангүй";
+      });
+  }
+
+  function loadVisitStats() {
+    if (adminVisitTotal) adminVisitTotal.textContent = "Ачааллаж байна…";
+    if (adminLastVisitDate) adminLastVisitDate.textContent = "Ачааллаж байна…";
+    if (adminLastVisitDevice) adminLastVisitDevice.textContent = "Ачааллаж байна…";
+
+    var analyticsDoc = db.collection("site").doc("analytics");
+    Promise.all([
+      analyticsDoc.get(),
+      analyticsDoc.collection("visits").orderBy("visitedAt", "desc").limit(1).get()
+    ])
+      .then(function (results) {
+        var snap = results[0];
+        var visitsSnap = results[1];
+        var data = snap.exists ? snap.data() || {} : {};
+        var total = Number(data.totalVisits || 0);
+        if (adminVisitTotal) adminVisitTotal.textContent = String(total);
+        if (visitsSnap.empty) {
+          if (adminLastVisitDate) adminLastVisitDate.textContent = "—";
+          if (adminLastVisitDevice) adminLastVisitDevice.textContent = "—";
+          return;
+        }
+        var latest = visitsSnap.docs[0].data() || {};
+        var visitedAt = Number(latest.visitedAt || 0);
+        var rowDevice = String(latest.deviceType || "unknown");
+        if (adminLastVisitDate) {
+          adminLastVisitDate.textContent = visitedAt
+            ? new Date(visitedAt).toLocaleString("mn-MN")
+            : "—";
+        }
+        if (adminLastVisitDevice) {
+          adminLastVisitDevice.textContent =
+            rowDevice.charAt(0).toUpperCase() + rowDevice.slice(1);
+        }
+      })
+      .catch(function () {
+        if (adminVisitTotal) adminVisitTotal.textContent = "Уншиж чадсангүй";
+        if (adminLastVisitDate) adminLastVisitDate.textContent = "Уншиж чадсангүй";
+        if (adminLastVisitDevice) adminLastVisitDevice.textContent = "Уншиж чадсангүй";
+      });
   }
 
   function tsToDate(ts) {
@@ -607,14 +687,17 @@
     var isMenu = which === "menu";
     var isNews = which === "news";
     var isAbout = which === "about";
+    var isAnalytics = which === "analytics";
     if (panelMessages) panelMessages.hidden = !isMsg;
     if (panelMenu) panelMenu.hidden = !isMenu;
     if (panelNews) panelNews.hidden = !isNews;
     if (panelAbout) panelAbout.hidden = !isAbout;
+    if (panelAnalytics) panelAnalytics.hidden = !isAnalytics;
     if (tabMessages) tabMessages.setAttribute("aria-pressed", String(isMsg));
     if (tabMenu) tabMenu.setAttribute("aria-pressed", String(isMenu));
     if (tabNews) tabNews.setAttribute("aria-pressed", String(isNews));
     if (tabAbout) tabAbout.setAttribute("aria-pressed", String(isAbout));
+    if (tabAnalytics) tabAnalytics.setAttribute("aria-pressed", String(isAnalytics));
   }
 
   if (tabMessages) {
@@ -636,6 +719,13 @@
     tabAbout.addEventListener("click", function () {
       setTab("about");
       loadAbout();
+    });
+  }
+  if (tabAnalytics) {
+    tabAnalytics.addEventListener("click", function () {
+      setTab("analytics");
+      loadAdminLoginCount();
+      loadVisitStats();
     });
   }
 
