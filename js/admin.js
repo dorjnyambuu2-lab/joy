@@ -62,9 +62,11 @@
   var localDevHint = document.getElementById("local-dev-hint");
   var themeToggle = document.getElementById("theme-toggle");
   var themeIcon = document.getElementById("theme-icon");
-  var unsubscribeAdminLogins = null;
+  var unsubscribeVisitorsCount = null;
   var unsubscribeAnalyticsDoc = null;
   var unsubscribeLatestVisit = null;
+  var latestUniqueVisitors = null;
+  var latestVisitorsCount = null;
   var defaultSkillItems = [
     { label: "Visual Studio Code", link: "Code Editor", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" },
     { label: "React JS", link: "Framework", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
@@ -256,6 +258,8 @@
   function loadAdminLoginCount() {
     if (!adminLoginCount) return;
     adminLoginCount.textContent = "Ачааллаж байна…";
+    latestUniqueVisitors = null;
+    latestVisitorsCount = null;
   }
 
   function loadVisitStats() {
@@ -267,17 +271,29 @@
 
   function startAnalyticsListeners() {
     stopAnalyticsListeners();
+    latestUniqueVisitors = null;
+    latestVisitorsCount = null;
 
     var analyticsDoc = db.collection("site").doc("analytics");
+    unsubscribeVisitorsCount = analyticsDoc.collection("visitors").onSnapshot(
+      function (snap) {
+        latestVisitorsCount = snap.size;
+        renderUniqueVisitors();
+      },
+      function () {
+        if (adminLoginCount) adminLoginCount.textContent = "Уншиж чадсангүй";
+      }
+    );
+
     unsubscribeAnalyticsDoc = analyticsDoc.onSnapshot(
       function (snap) {
         var data = snap.exists ? snap.data() || {} : {};
         var total = Number(data.totalVisits || 0);
-        var uniqueVisitors = Number(data.uniqueVisitors || 0);
+        latestUniqueVisitors = Number(data.uniqueVisitors || 0);
         var deviceCounts = data.deviceCounts || {};
         var desktop = Number(deviceCounts.desktop || 0);
         var mobile = Number(deviceCounts.mobile || 0);
-        if (adminLoginCount) adminLoginCount.textContent = String(uniqueVisitors);
+        renderUniqueVisitors();
         if (adminVisitTotal) adminVisitTotal.textContent = String(total);
         if (adminDeviceDesktop) adminDeviceDesktop.textContent = String(desktop);
         if (adminDeviceMobile) adminDeviceMobile.textContent = String(mobile);
@@ -315,9 +331,9 @@
   }
 
   function stopAnalyticsListeners() {
-    if (typeof unsubscribeAdminLogins === "function") {
-      unsubscribeAdminLogins();
-      unsubscribeAdminLogins = null;
+    if (typeof unsubscribeVisitorsCount === "function") {
+      unsubscribeVisitorsCount();
+      unsubscribeVisitorsCount = null;
     }
     if (typeof unsubscribeAnalyticsDoc === "function") {
       unsubscribeAnalyticsDoc();
@@ -326,6 +342,17 @@
     if (typeof unsubscribeLatestVisit === "function") {
       unsubscribeLatestVisit();
       unsubscribeLatestVisit = null;
+    }
+  }
+
+  function renderUniqueVisitors() {
+    if (!adminLoginCount) return;
+    if (typeof latestVisitorsCount === "number") {
+      adminLoginCount.textContent = String(latestVisitorsCount);
+      return;
+    }
+    if (typeof latestUniqueVisitors === "number") {
+      adminLoginCount.textContent = String(latestUniqueVisitors);
     }
   }
 
